@@ -5,7 +5,7 @@ import { NotFoundException } from '@nestjs/common';
 describe('MoviesService', () => {
    let service: MoviesService;
 
-   beforeEach(async () => {
+   beforeAll(async () => {
       const module: TestingModule = await Test.createTestingModule({
          providers: [MoviesService],
       }).compile();
@@ -26,7 +26,7 @@ describe('MoviesService', () => {
             genres: ['test'],
          });
          const afterCreate = service.getAll().length;
-         expect(afterCreate).toEqual(afterCreate);
+         expect(afterCreate).toEqual(beforeCreate + 1);
       });
    });
 
@@ -39,11 +39,6 @@ describe('MoviesService', () => {
 
    describe('getOne', () => {
       it('should return a movie', () => {
-         service.create({
-            title: 'Test Movie',
-            year: 2020,
-            genres: ['test'],
-         });
          const movie = service.getOne(1);
          expect(movie).toBeDefined();
       });
@@ -57,34 +52,8 @@ describe('MoviesService', () => {
       });
    });
 
-   describe('deleteOne', () => {
-      it('should deletes a movie', () => {
-         service.create({
-            title: 'Test Movie',
-            year: 2020,
-            genres: ['test'],
-         });
-         const allMovies = service.getAll();
-         service.deleteOne(1);
-         const afterDelete = service.getAll();
-         expect(afterDelete.length).toEqual(allMovies.length - 1);
-      });
-      it('should return a 404', () => {
-         try {
-            service.deleteOne(999);
-         } catch (e) {
-            expect(e).toBeInstanceOf(NotFoundException);
-         }
-      });
-   });
-
    describe('update', () => {
       it('should update a movie', () => {
-         service.create({
-            title: 'Test Movie',
-            year: 2020,
-            genres: ['test'],
-         });
          const updateData = {
             title: 'Update Movie',
             year: 2022,
@@ -97,6 +66,22 @@ describe('MoviesService', () => {
       it('should throw a NotFoundException', () => {
          try {
             service.update(999, { title: 'throw 404' });
+         } catch (e) {
+            expect(e).toBeInstanceOf(NotFoundException);
+         }
+      });
+   });
+
+   describe('deleteOne', () => {
+      it('should deletes a movie', () => {
+         const allMovies = service.getAll();
+         service.deleteOne(1);
+         const afterDelete = service.getAll();
+         expect(afterDelete.length).toEqual(allMovies.length - 1);
+      });
+      it('should return a 404', () => {
+         try {
+            service.deleteOne(999);
          } catch (e) {
             expect(e).toBeInstanceOf(NotFoundException);
          }
